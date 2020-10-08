@@ -1,0 +1,64 @@
+```{r}
+
+library(R2WinBUGS)
+library(mixFish)
+install.packages("mixFish")
+#install.packages("R2WinBUGS")
+```
+
+
+```{r}
+example(mix.fish)
+?bugs
+aliases
+paths
+```
+mx.fsh> data(codmix)
+
+mx.fsh> mymix<-mix.fish(data=codmix,method="otolith",groups="STOCK",
+mx.fsh+ otolith.var=c("BA", "LILN", "MGLNDET2", "MNDET2", "SRDET2"), 
+mx.fsh+ mixparameters=c("P1","P2","P3","P4"),base=codmix[codmix$SEASON=="S96",],
+mx.fsh+ basetows=c("3Pn4RS","3Ps","4T","4Vs"),mix=codmix[codmix$SEASON=="J96",],
+mx.fsh+ mixtows=c("3Pn4RS","3Ps","4Vn","4Vs"),type="random",n.chains=2,n.iter=2000)
+```{r}
+m.fish=data("codmix - Copy.txt")
+m.fish
+codmix=read.table("codmix.txt", header=T)
+mymix=mix.fish(data=codmix, method="otolith", groups="STOCK",base=codmix[(codmix$SEASON=="S96"),],mix=codmix[(codmix$SEASON=="J96"),],type="random",mixparameters=c("P1","P2","P3","P4"), mixtows=c("3Pn4RS","3Ps","4Vn","4Vs"), basetows=c("3Pn4RS","3Ps","4T","4Vs"),otolith.var=c("BA", "LILN", "MGLNDET2", "MNDET2", "SRDET2"),n.chains=2,n.iter=2000)
+Plot.credible.intervals(mymix, base.labels =c("3Pn4RS","3Ps","4T","4Vs"), mix.labels =  c("3Pn4RS","3Ps","4Vn","4Vs"))
+Plot.post.predictive.check(mymix, base.labels =c("3Pn4RS","3Ps","4T","4Vs"), )
+
+summary(mymix)
+plot(mymix)
+mymix
+
+mix=read.csv("lionmix.csv", header=T)
+lionmix=mix.fish(data=mix,method="otolith",groups="STOCK", base=mix[mix$SEASON=="R",],mix=mix[mix$SEASON=="C",],type="random", mixparameters = c("P1", "P2","P3","P4","P5","P6"),mixtows=c("A","B","C","D","E","G"),basetows = c("A","B","C","D","E","G"), otolith.var = c("CARBON","OXYGEN"),n.chains = 2, n.iter = 2000 )
+lionmix
+
+
+
+ hh=read.csv("hmix.csv", header=T)
+hmix=read.csv("lionmix.csv", header=T)
+lionmix=mix.fish(data=hh,method="otolith",groups="STOCK", base=mix[mix$SEASON=="R",],mix=mix[mix$SEASON=="C",],type="random", mixparameters = c("P1"),mixtows="H",basetows = "H", otolith.var = c("CARBON","OXYGEN"),n.chains = 2, n.iter = 2000 )
+```
+
+
+```{r}
+
+mymix=mix.fish(data=codmix, method="otolith", groups="STOCK",base=codmix[(codmix$SEASON=="S96"),],mix=codmix[(codmix$SEASON=="J96"),],type="random",mixparameters=c("P1","P2","P3"), mixtows=c("3Pn4RS","3Ps","4Vn"), basetows=c("3Pn4RS","3Ps","4T","4Vs"),otolith.var=c("BA", "LILN", "MGLNDET2", "MNDET2", "SRDET2"),n.chains=2,n.iter=2000)
+mymix
+
+
+
+cat=mix[which(mix[,2]=="H"),]
+t.test(cat[which(cat[,1]=="C"),4],cat[which(cat[,1]=="R"),4])
+t.test(cat[which(cat[,1]=="C"),3],cat[which(cat[,1]=="R"),3])
+```
+
+
+```{r}
+
+readRDS(file = "paths.rds", refhook = NULL)
+
+```
