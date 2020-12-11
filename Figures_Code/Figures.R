@@ -2,10 +2,14 @@
 library(ggplot2)
 library(dplyr)
 library(gridExtra)
+library(mapproj)
+library(rworldmap)
+
 
 ## Read in data -------
 oto=read.csv("CSVs/Otolith_Data_CSV.csv") %>%
   filter(Area != "NA")
+
 
 ## Rim vs. Core d18O graph ----
 ggplot(data=oto, aes(x = Rim_O, y=Core_O, color=Depth, shape = Area)) + 
@@ -47,4 +51,44 @@ oto %>%
              col = Area)) +
   geom_point() + 
   ylab(({delta}^13*C~'\u2030'))
+
+
+## Sites Map ------ 
+
+lat_mat = data.frame(lat = oto$lat, 
+           long = oto$long) %>%
+  unique()
+
+# Creating map 
+data("countryExData", envir=environment(), package="rworldmap")
+
+mymap <- joinCountryData2Map(countryExData, 
+                             joinCode = "ISO3",
+                             nameJoinColumn = "ISO3V10", 
+                             mapResolution = "low")
+mymap <- fortify(mymap) 
+
+mypoints <- data.frame(lat = rep(55, 3),
+                       long = c(-145, -147, -149))
+
+# Plotting Map and Data 
+ggplot() + 
+  coord_map(xlim = c(-85, -79.5), 
+            ylim = c(24.7, 30)) +
+  geom_polygon(data = mymap,
+               aes(long, lat, group = group), 
+               color = "grey20",
+               fill = "grey15", 
+               size = 0.3) +
+  xlim(-90, -79) +
+  ylim(23, 39) +
+  geom_point(data=lat_mat, 
+             aes(x=long,
+                 y=lat,
+                 col =2),
+             size=5) + 
+  xlab("Longitude") +
+  ylab("Latitude") +
+  theme(legend.position = "none") +
+  theme(text = element_text(size=26)) 
 
