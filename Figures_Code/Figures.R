@@ -92,3 +92,8 @@ ggplot() +
   theme(legend.position = "none") +
   theme(text = element_text(size=26)) 
 
+## Sankey 
+cat = rep(letters[1:6],2)
+data = read.csv("Data/sankey_dataframe.csv",header=T)
+
+
