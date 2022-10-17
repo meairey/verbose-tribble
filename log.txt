@@ -1,76 +1,39 @@
 display(log)
-check(C:/Users/monta/OneDrive/Cornell/GitHub/verbose-tribble/mixmodel.txt)
+check(C:/Users/monta/OneDrive - Airey Family/GitHub/verbose-tribble/mixmodel.txt)
 model is syntactically correct
-data(C:/Users/monta/OneDrive/Cornell/GitHub/verbose-tribble/data.txt)
+data(C:/Users/monta/OneDrive - Airey Family/GitHub/verbose-tribble/data.txt)
 data loaded
-compile(2)
-model compiled
-inits(1,C:/Users/monta/OneDrive/Cornell/GitHub/verbose-tribble/inits1.txt)
-this chain contains uninitialized variables
-inits(2,C:/Users/monta/OneDrive/Cornell/GitHub/verbose-tribble/inits2.txt)
-this chain contains uninitialized variables
+compile(3)
+variable N.mix4 is not defined
+inits(1,C:/Users/monta/OneDrive - Airey Family/GitHub/verbose-tribble/inits1.txt)
+command #Bugs:inits cannot be executed (is greyed out)
+inits(2,C:/Users/monta/OneDrive - Airey Family/GitHub/verbose-tribble/inits2.txt)
+command #Bugs:inits cannot be executed (is greyed out)
+inits(3,C:/Users/monta/OneDrive - Airey Family/GitHub/verbose-tribble/inits3.txt)
+command #Bugs:inits cannot be executed (is greyed out)
 gen.inits()
-initial values generated, model initialized
-thin.updater(2)
-update(500)
+command #Bugs:gen.inits cannot be executed (is greyed out)
+thin.updater(15)
+update(334)
+command #Bugs:update cannot be executed (is greyed out)
 set(P1)
+command #Bugs:set cannot be executed (is greyed out)
 set(P2)
-set(P3)
-set(P4)
-set(P5)
-set(P6)
+command #Bugs:set cannot be executed (is greyed out)
 set(deviance)
+command #Bugs:set cannot be executed (is greyed out)
 dic.set()
 command #Bugs:dic.set cannot be executed (is greyed out)
-update(500)
-coda(*,C:/Users/monta/OneDrive/Cornell/GitHub/verbose-tribble/coda)
+update(334)
+command #Bugs:update cannot be executed (is greyed out)
+coda(*,C:/Users/monta/OneDrive - Airey Family/GitHub/verbose-tribble/coda)
+command #Bugs:coda cannot be executed (is greyed out)
 stats(*)
-
-Node statistics
-	 node	 mean	 sd	 MC error	2.5%	median	97.5%	start	sample
-	P1[1]	0.05095	0.1048	0.004688	3.352E-11	0.004062	0.358	501	1000
-	P1[2]	0.04521	0.1044	0.004483	2.544E-10	0.003889	0.3747	501	1000
-	P1[3]	0.03832	0.08152	0.002664	4.443E-11	0.003014	0.2942	501	1000
-	P1[4]	0.2406	0.3177	0.02851	2.837E-10	0.05998	0.9723	501	1000
-	P1[5]	0.5496	0.3462	0.02818	5.644E-7	0.6369	0.991	501	1000
-	P1[6]	0.07522	0.1506	0.008073	7.867E-11	0.005857	0.5431	501	1000
-	P2[1]	0.1198	0.2079	0.01315	1.506E-10	0.01512	0.7816	501	1000
-	P2[2]	0.1954	0.2695	0.01845	2.714E-9	0.04865	0.916	501	1000
-	P2[3]	0.1195	0.2067	0.01367	3.536E-10	0.01597	0.7884	501	1000
-	P2[4]	0.1798	0.2688	0.01821	2.375E-10	0.02575	0.9061	501	1000
-	P2[5]	0.3405	0.2828	0.01777	2.859E-7	0.3076	0.9139	501	1000
-	P2[6]	0.045	0.09962	0.003527	2.427E-11	0.003065	0.3625	501	1000
-	P3[1]	0.1998	0.2877	0.0223	1.287E-9	0.03343	0.9436	501	1000
-	P3[2]	0.2952	0.3168	0.02763	1.312E-8	0.17	0.9609	501	1000
-	P3[3]	0.1805	0.2739	0.02193	3.403E-9	0.02107	0.9171	501	1000
-	P3[4]	0.1628	0.2379	0.01656	2.968E-10	0.03248	0.8492	501	1000
-	P3[5]	0.1093	0.1626	0.009794	1.049E-9	0.02131	0.6032	501	1000
-	P3[6]	0.05241	0.1119	0.003669	4.028E-11	0.003678	0.4219	501	1000
-	P4[1]	0.0204	0.04575	0.001768	5.401E-12	0.001196	0.15	501	1000
-	P4[2]	0.02229	0.06026	0.003452	9.749E-12	9.996E-4	0.1596	501	1000
-	P4[3]	0.01868	0.04578	0.001388	3.904E-12	8.811E-4	0.149	501	1000
-	P4[4]	0.08044	0.1953	0.02189	1.693E-10	0.003666	0.8961	501	1000
-	P4[5]	0.8349	0.2163	0.02157	0.04151	0.9113	0.9986	501	1000
-	P4[6]	0.02333	0.05007	0.002012	1.475E-10	0.001799	0.1805	501	1000
-	P5[1]	0.03323	0.07308	0.001976	4.437E-11	0.002333	0.2662	501	1000
-	P5[2]	0.0324	0.06987	0.001764	1.259E-11	0.001718	0.255	501	1000
-	P5[3]	0.03235	0.06946	0.002481	9.073E-11	0.002013	0.2509	501	1000
-	P5[4]	0.04165	0.09891	0.00427	1.625E-11	0.002456	0.3677	501	1000
-	P5[5]	0.8226	0.1643	0.005952	0.4232	0.8711	0.9979	501	1000
-	P5[6]	0.0378	0.08483	0.002625	9.684E-12	0.001732	0.3358	501	1000
-	P6[1]	0.02261	0.05	0.001269	1.472E-10	0.00144	0.1762	501	1000
-	P6[2]	0.02042	0.04322	0.001369	1.39E-11	0.001684	0.1458	501	1000
-	P6[3]	0.02282	0.04949	0.001616	2.991E-11	0.002222	0.1776	501	1000
-	P6[4]	0.02705	0.06734	0.002683	1.178E-11	0.001555	0.2263	501	1000
-	P6[5]	0.8851	0.1146	0.003459	0.5899	0.9217	0.9981	501	1000
-	P6[6]	0.02198	0.04945	0.001727	3.289E-11	0.001437	0.2019	501	1000
-	deviance	192.8	9.792	0.5909	176.6	191.9	214.0	501	1000
+command #Bugs:stats cannot be executed (is greyed out)
 dic.stats()
 
 DIC
-history(*,C:/Users/monta/OneDrive/Cornell/GitHub/verbose-tribble/history.odc)
-
-History
-
-save(C:/Users/monta/OneDrive/Cornell/GitHub/verbose-tribble/log.odc)
-save(C:/Users/monta/OneDrive/Cornell/GitHub/verbose-tribble/log.txt)
+history(*,C:/Users/monta/OneDrive - Airey Family/GitHub/verbose-tribble/history.odc)
+command #Bugs:history cannot be executed (is greyed out)
+save(C:/Users/monta/OneDrive - Airey Family/GitHub/verbose-tribble/log.odc)
+save(C:/Users/monta/OneDrive - Airey Family/GitHub/verbose-tribble/log.txt)

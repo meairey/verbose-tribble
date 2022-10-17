@@ -1,0 +1,56 @@
+---
+title: "Lionfish Sankey"
+output: html_document
+---
+### Sankey Plot: This RMD is being used to save the pdf of the sankey diagram (because R hates me and refused to save an intact pdf in Figures.R). 
+```{r setup, echo = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r, include=F}
+## Read in libraries ---------
+library(ggplot2)
+library(dplyr)
+library(gridExtra)
+library(mapproj)
+library(rworldmap)
+library(tidyr)
+
+library(networkD3)
+
+```
+
+```{r, echo = F}
+data = read.csv("../Data/sankey_dataframe_new.csv", header=T)
+
+
+
+nodes = data.frame(
+  name = c(as.character(data$source), 
+           as.character(data$target)) %>% unique()
+)
+data$val = as.character(data$val)
+data$IDsource = match(data$source, nodes$name)-1
+data$IDtarget = match(data$target, nodes$name)-1
+nodes = data.frame(name = rep(c("W:<45m",
+                                "W:45-90m",
+                                "W:>90m",
+                                "K:<10m",
+                                "K:>10m"),2))
+
+
+
+
+ColourScal ='d3.scaleOrdinal() .range(["#FDE725FF","#B4DE2CFF","#6DCD59FF","#35B779FF","#1F9E89FF","#26828EFF","#31688EFF","#3E4A89FF","#482878FF","#440154FF"])'
+sankeyNetwork(Links = data,
+                   Nodes = nodes,
+                   Source = "IDsource",
+                   Target = "IDtarget",
+                   Value = "val",
+                   NodeID = "name", 
+                   colourScale=ColourScal,
+                   sinksRight=FALSE,
+                   nodeWidth=40,
+                   fontSize=30,
+                   nodePadding = 20)
+```
+

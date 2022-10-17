@@ -6,11 +6,11 @@ library(mixFish)
 
 
 ```{r}
-mix=read.csv("lionmix.csv", header=T)
+mix=read.csv("../Data/lionmix.csv", header=T)
 
 lionmix=mix.fish(data=mix,method="otolith",groups="STOCK", base=mix[mix$SEASON=="R",],mix=mix[mix$SEASON=="C",],type="random", mixparameters = c("P1", "P2","P3","P4","P5","P6"),mixtows=c("A","B","C","D","E","G"),basetows = c("A","B","C","D","E","G"), otolith.var = c("CARBON","OXYGEN"),n.chains = 2, n.iter = 2000 )
 lionmix
-
+lionmix = mix.fishs(data=mix,method="otolith",groups="STOCK", base=mix[mix$SEASON=="R",],mix=mix[mix$SEASON=="C",],type="random", mixparameters = c("P1", "P2","P3","P4","P5","P6"),mixtows=c("A","B","C","D","E","G"),basetows = c("A","B","C","D","E","G"), otolith.var = c("CARBON","OXYGEN"),n.chains = 2, n.iter = 2000 )
 
 hmix=read.csv("lionmix.csv", header=T)
 lionmix=mix.fish(data=hmix,method="otolith",groups="STOCK", base=mix[mix$SEASON=="R",],mix=mix[mix$SEASON=="C",],type="random", mixparameters = c("P1"),mixtows="H",basetows = "H", otolith.var = c("CARBON","OXYGEN"),n.chains = 2, n.iter = 2000 )
