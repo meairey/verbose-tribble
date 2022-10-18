@@ -17,13 +17,13 @@ oto=read.csv("Data/Otolith_Data_CSV.csv") %>%
 
 ## PCA of rim and core values 
 
-pca_dat = oto %>% select(Core_O,Rim_O,Core_C, Rim_C, Group.C, Individual) %>% 
+pca_dat = oto %>% select(Core_O,Rim_O,Core_C, Rim_C, Group, Individual) %>% 
   rename("Sample_ID" = Individual) %>%
   mutate(individal = row_number()) %>% 
   pivot_longer(1:4, names_to = "group") %>%
   separate(group, into = c("age", "isotope")) %>%  
   pivot_wider(names_from = isotope, values_from = value) %>%
-  unite("group",c(Group.C, age), remove = F) %>%
+  unite("group",c(Group, age), remove = F) %>%
   na.omit()
 
 
@@ -33,12 +33,22 @@ results = prcomp(pca_dat %>% select(O,C))
 
 results$x %>% as.data.frame() %>% 
   ggplot(aes(x = PC1, y = PC2, color = pca_dat$group)) +
-  geom_text(aes(label = as.character(pca_dat$Sample_ID))) +
-  stat_ellipse(level = .95)+
+  geom_text(aes(label = as.character(pca_dat$individal))) +
+  stat_ellipse(level = .975)+
   scale_color_manual(
-    values = as.numeric(as.factor(pca_dat$group))
+    values = as.numeric(as.factor(pca_dat$age))
   )
 
+
+
+## Group groupings - I think this is the one you should use 
+
+list.95 = c(22,37,16,3,14,10,23,17,8,34,35,28,4)
+list.95.samp = (pca_dat %>% filter(individal %in% list.95))$Sample_ID %>% unique
+list.975 = c(22,37,16,3,14,10,23,8,34,28,4)
+list.975.samp = (pca_dat %>% filter(individal %in% list.975))$Sample_ID %>% unique
+
+# Group.C groupings
 ## These are the individuals that do not fit into an ellipse with 97.5% stat ellipses
 list.975 = c(4,6,8,19,23,1)
 list.975.samp = (pca_dat %>% filter(individal %in% list.975))$Sample_ID %>% unique
