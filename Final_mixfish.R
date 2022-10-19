@@ -362,16 +362,19 @@ data = data %>%
   select(-c(STOCK_1,STOCK, Final)) %>%
   mutate(STOCK_2 = as.factor(STOCK_2)) %>%
   na.omit()
-
+### click to here --------------------------
 lionmix_mo = mixy(data = data, 
                  method = "otolith",
                  groups = "STOCK_2",
                  base = data[data$SEASON == "R",],
                  mix = data[data$SEASON == "C",],
                  type = "random",
-                 mixparameters = c("P1", "P2","P3","P4"),
-                 mixtows = c("A","B","C","K"),
-                 basetows = c("A","B","C","K"),
+                 #mixparameters = c("P1", "P2","P3","P4"),
+                 mixparameters = c("P1","P2"),
+                 #mixtows = c("A","B","C","K"),
+                 mixtows = c("B","K"),
+                 #basetows = c("A","B","C","K"),
+                 basetows = c("B","K", "KD"),
                  otolith.var = c("CARBON","OXYGEN"),
                  n.chains = 5,
                  n.iter = 5000)
@@ -420,35 +423,36 @@ lionmix_mu = mixy(data = data,
 lionmix_mu
 
 
-
+## Final filtered model ---------------------
 ## Trying with the filtered data 
 `%nin%` = Negate(`%in%`) # sets up a way to exclude if in a string
-data = pca_dat %>% filter(Sample_ID %nin% list.95.samp) %>%
-  select(Group,age, O, C) %>%
+data = pca_dat %>%
+  filter(Sample_ID %nin% list.975.samp) %>%
+  group_by(individal, Group, age) %>%
+  #summarise(O = mean(O),
+          # C = mean(C)) %>%
+  ungroup() %>%
+  select(Group,age, O, C, -individal) %>%
   rename("CARBON" = C) %>%
   rename("OXYGEN" = O) %>%
   rename("SEASON" = age) %>%
   rename("STOCK" = Group) %>%
-  mutate(STOCK = as.factor(STOCK)) %>% 
-  as.data.frame()
+ # mutate(STOCK = replace(STOCK, STOCK == "W_B", "B_W  )) %>% 
+  mutate(STOCK = as.factor(STOCK)) %>% ## Has to be a factor to work 
+  as.data.frame() 
 
-#data = read.csv("Data/lionmix_modified.csv")
-#data = data %>% 
- # filter(STOCK_2 != "KD") %>%
-  #select(-c(STOCK_1,STOCK, Final)) %>%
-  #rename("STOCK" = STOCK_2)
-  #na.omit()
 
-lionmix_my = mixy(data = data, 
+lionmix = mixy(data = data, 
                  method = "otolith",
                  groups = "STOCK",
                  base = data[data$SEASON == "Rim",],
                  mix = data[data$SEASON == "Core",],
                  type = "random",
-                 mixparameters = c("P1", "P2", "P3"),
-                 mixtows = c("W_A","W_B","W_C"),
-                 basetows = c("W_A","W_B","W_C"),
+                 mixparameters = c("P1", "P2", "P3", "P4"),
+                 mixtows = c("K_A","W_A","W_B","W_C" ),
+                 basetows = c("K_A","W_A","W_B","W_C"),
                  otolith.var = c("CARBON","OXYGEN"),
                  n.chains = 5,
-                 n.iter = 5000)
-lionmix_my
+                 n.iter = 50000)
+lionmix
+

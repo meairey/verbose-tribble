@@ -19,8 +19,12 @@ oto=read.csv("Data/Otolith_Data_CSV.csv") %>%
 
 pca_dat = oto %>% select(Core_O,Rim_O,Core_C, Rim_C, Group, Individual) %>% 
   rename("Sample_ID" = Individual) %>%
-  mutate(individal = row_number()) %>% 
+   mutate(individal = row_number()) %>% 
+   group_by(Group, Sample_ID) %>%
+   summarise_at(c("Core_O", "Rim_O", "Core_C", "Rim_C"), mean, na.rm = TRUE) %>%
+  pivot_longer(3:6, names_to = "group") %>%
   pivot_longer(1:4, names_to = "group") %>%
+  #filter(individal %nin% c(9,10)) %>%
   separate(group, into = c("age", "isotope")) %>%  
   pivot_wider(names_from = isotope, values_from = value) %>%
   unite("group",c(Group, age), remove = F) %>%
@@ -33,8 +37,8 @@ results = prcomp(pca_dat %>% select(O,C))
 
 results$x %>% as.data.frame() %>% 
   ggplot(aes(x = PC1, y = PC2, color = pca_dat$group)) +
-  geom_text(aes(label = as.character(pca_dat$individal))) +
-  stat_ellipse(level = .975)+
+  geom_text(aes(label = as.character(pca_dat$Sample_ID))) +
+  stat_ellipse(level = .99)+
   scale_color_manual(
     values = as.numeric(as.factor(pca_dat$age))
   )
@@ -47,7 +51,9 @@ list.95 = c(22,37,16,3,14,10,23,17,8,34,35,28,4)
 list.95.samp = (pca_dat %>% filter(individal %in% list.95))$Sample_ID %>% unique
 list.975 = c(22,37,16,3,14,10,23,8,34,28,4)
 list.975.samp = (pca_dat %>% filter(individal %in% list.975))$Sample_ID %>% unique
-
+list.99 = c(37,16,3,10,14,8)
+list.99 = c(16,3,14,8,14,37)
+list.99.samp = (pca_dat %>% filter(individal %in% list.99))$Sample_ID %>% unique
 # Group.C groupings
 ## These are the individuals that do not fit into an ellipse with 97.5% stat ellipses
 list.975 = c(4,6,8,19,23,1)
@@ -57,7 +63,10 @@ list.95.samp = (pca_dat %>% filter(individal %in% list.95))$Sample_ID %>% unique
 
 ## Graph of d18O for un-classifiable individuals 
 
-pca_dat %>% filter(individal %in% list.95) %>% ggplot(aes(x = C, y = O, color = Group.C, shape = age)) + 
+pca_dat %>% filter(individal %in% list.975.samp) %>% ggplot(aes(x = C, y = O, color = Group, shape = age)) + 
+  geom_point()
+
+pca_dat %>% filter(individal %in% list.95) %>% ggplot(aes(x =individal, y = O, color = Group, shape = age)) + 
   geom_point()
 
 ## Rim vs. Core d18O graph ----
