@@ -398,29 +398,6 @@ summary = rbind(mean, q_5, q_95)
 results = format(round(summary,7))
 write.csv(results, "mixfish_results_2.csv")
 
-## Modified Model 
-# Just Keys
-data = read.csv("Data/lionmix_modified.csv")
-data = data %>% 
-  #filter(STOCK_1 == "K") %>%
-  select(-c(STOCK_1, Final, STOCK_2)) %>%
-  mutate(STOCK = as.factor(STOCK)) %>%
-  na.omit()
-
-lionmix_mu = mixy(data = data, 
-                 method = "otolith",
-                 groups = "STOCK",
-                 base = data[data$SEASON == "R",],
-                 mix = data[data$SEASON == "C",],
-                 type = "random",
-                 mixparameters = c("P1", "P2"),
-                 mixtows = c( "K", "KD"),
-                 basetows = c("K", "KD"),
-                 otolith.var = c("CARBON","OXYGEN"),
-                 n.chains = 3,
-                 n.iter = 10000)
-
-lionmix_mu
 
 
 ## Final filtered model ---------------------
@@ -432,7 +409,7 @@ data = pca_dat %>%
   #summarise(O = mean(O),
           # C = mean(C)) %>%
   ungroup() %>%
-  select(Group,age, O, C, -individal) %>%
+  select(Group,age, O, C, individal) %>%
   rename("CARBON" = C) %>%
   rename("OXYGEN" = O) %>%
   rename("SEASON" = age) %>%
@@ -456,3 +433,36 @@ lionmix = mixy(data = data,
                  n.iter = 50000)
 lionmix
 
+
+testing = lionmix[["sims.matrix"]]
+testing_1 = testing[,12]
+quantile(testing_1, probs = c(.05,.95, .976))
+
+
+mean = testing %>%
+  as.data.frame() %>%
+  summarise_all(mean)
+q_5 = testing %>%
+  as.data.frame() %>%
+  summarise_all(.,funs(quantile(., probs = .05)*100))
+q_95 = testing %>%
+  as.data.frame() %>%
+  summarise_all(.,funs(quantile(., probs = .95)*100))
+summary = rbind(mean, q_5, q_95)
+results = format(round(summary,7)) 
+write.csv(results, "mixfish_results_2.csv")
+
+
+## Trying to make a dendrogram 
+cluster_data = data %>% 
+  unite("id", c(individal, SEASON, STOCK)) %>%
+  column_to_rownames(.,var = "id") %>%
+  select(OXYGEN, CARBON) %>% 
+  mutate(OXYGEN = scale(OXYGEN)) %>%
+  mutate(CARBON = scale(CARBON)) %>%
+  dist(., method = "euclidean") 
+
+
+
+hclust_avg <- hclust(cluster_data, method = 'average')
+plot(hclust_avg)

@@ -19,11 +19,12 @@ oto=read.csv("Data/Otolith_Data_CSV.csv") %>%
 
 pca_dat = oto %>% select(Core_O,Rim_O,Core_C, Rim_C, Group, Individual) %>% 
   rename("Sample_ID" = Individual) %>%
-   mutate(individal = row_number()) %>% 
-   group_by(Group, Sample_ID) %>%
-   summarise_at(c("Core_O", "Rim_O", "Core_C", "Rim_C"), mean, na.rm = TRUE) %>%
+  group_by(Group, Sample_ID) %>%
+  summarise_at(c("Core_O", "Rim_O", "Core_C", "Rim_C"), mean, na.rm = TRUE) %>%
+  ungroup() %>% 
+  mutate(individal = row_number()) %>% 
   pivot_longer(3:6, names_to = "group") %>%
-  pivot_longer(1:4, names_to = "group") %>%
+  #pivot_longer(1:4, names_to = "group") %>%
   #filter(individal %nin% c(9,10)) %>%
   separate(group, into = c("age", "isotope")) %>%  
   pivot_wider(names_from = isotope, values_from = value) %>%
