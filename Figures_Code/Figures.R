@@ -17,19 +17,25 @@ oto=read.csv("Data/Otolith_Data_CSV.csv") %>%
 
 ## PCA of rim and core values 
 
-pca_dat = oto %>% select(Core_O,Rim_O,Core_C, Rim_C, Group, Individual) %>% 
+pca_dat = oto %>% 
+  filter(Individual != "338-B",  
+         Individual != "338?") %>%
+  select(Core_O,Rim_O,Core_C,
+         Rim_C, Group, Individual) %>% 
   rename("Sample_ID" = Individual) %>%
   group_by(Group, Sample_ID) %>%
-  summarise_at(c("Core_O", "Rim_O", "Core_C", "Rim_C"), mean, na.rm = TRUE) %>%
+  #summarise_at(c("Core_O", "Rim_O", "Core_C", "Rim_C"), mean, na.rm = TRUE) %>%
+  summarise(across(c(Core_O, Rim_O, Core_C, Rim_C), list(mean = ~mean(.)))) %>%
   ungroup() %>% 
   mutate(individal = row_number()) %>% 
   pivot_longer(3:6, names_to = "group") %>%
   #pivot_longer(1:4, names_to = "group") %>%
   #filter(individal %nin% c(9,10)) %>%
-  separate(group, into = c("age", "isotope")) %>%  
+  separate(group, into = c("age", "isotope", "mean")) %>%  
   pivot_wider(names_from = isotope, values_from = value) %>%
   unite("group",c(Group, age), remove = F) %>%
-  na.omit()
+  na.omit() %>%
+  select(-mean)
 
 
 
@@ -38,11 +44,19 @@ results = prcomp(pca_dat %>% select(O,C))
 
 results$x %>% as.data.frame() %>% 
   ggplot(aes(x = PC1, y = PC2, color = pca_dat$group)) +
-  geom_text(aes(label = as.character(pca_dat$Sample_ID))) +
+  geom_text(aes(label = as.character(pca_dat$individal))) +
   stat_ellipse(level = .99)+
   scale_color_manual(
     values = as.numeric(as.factor(pca_dat$age))
   )
+
+
+## Fish sizes 
+
+oto %>% 
+  filter(Individual != "338-B",  
+         Individual != "338?") %>% select(Group, Individual,TL.mm.) %>% 
+  unique() %>% group_by(Group) %>% summarize(mean = median(TL.mm., na.rm=T))
 
 
 
@@ -61,6 +75,29 @@ list.975 = c(4,6,8,19,23,1)
 list.975.samp = (pca_dat %>% filter(individal %in% list.975))$Sample_ID %>% unique
 list.95 = c(4,6,8,19,23,1,35,10,14)
 list.95.samp = (pca_dat %>% filter(individal %in% list.95))$Sample_ID %>% unique
+
+
+# I combined the K_A and K_B groups because their isotopes looked very similar? Here are new groupings that are outside the stat ellipses
+
+list.975 = c(1,6,16,3,12,7,5,15)
+list.975.samp = (pca_dat %>% filter(individal %in% list.975))$Sample_ID %>% unique()
+list.95 = c(1,6,8,16,3,12,7,5,15)
+list.95.samp = (pca_dat %>% filter(individal %in% list.975))$Sample_ID %>% unique
+list.99 = c(1,3,12,7,15)
+
+## I combined K_A and W_A because their isotopes arent actually that different from eachother
+
+list.975 = c(13,10,1,3,12,6,14,9)
+list.975.samp = (pca_dat %>% filter(individal %in% list.975))$Sample_ID %>% unique()
+
+## I combined W_B and W_C together because their isotopes are similar
+list.99 = c(1,13,10,3,6,12)
+list.99.samp = list.975.samp = (pca_dat %>% filter(individal %in% list.99))$Sample_ID %>% unique()
+list.975 = c(1,13,10,3,12,6,14,18)
+list.975.samp = (pca_dat %>% filter(individal %in% list.975))$Sample_ID %>% unique()
+list.95 = c(1,13,10,3,12,6,14,18,19)
+list.95.samp = (pca_dat %>% filter(individal %in% list.95))$Sample_ID %>% unique()
+
 
 ## Graph of d18O for un-classifiable individuals 
 
@@ -109,25 +146,36 @@ ggplot(oto, aes(Group.C, Rim_O, fill=Group.C)) +
   ylab(expression({delta}^18*O~'\u2030'))
 
 ## Depth vs. 018 graph -----
+
+summary(lm(oto$Rim_C ~ oto$Depth,na.rm = T))
+
 oto %>%
   ggplot(aes(x = Depth, 
              y = Rim_O)) +
-  geom_point(cex = 4, aes(pch = Area)) + 
+  geom_point(cex = 4) + 
   ylab(({delta}^18*O~'\u2030')) +
   xlab("Depth (m)") +
   theme(text = element_text(size=23)) + 
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm", color = 1, se = F) + 
+  geom_vline(xintercept = 0, linetype = 1) +
+  geom_vline(xintercept = 35, linetype = 1) +
+  geom_vline(xintercept = 45, linetype = 3) +
+  geom_vline(xintercept = 95, linetype = 3) 
 
 
 ## Depth vs. C13 graph -----
 oto %>%
-  ggplot(aes(y = Depth,
-             x = Rim_C)) +
-  geom_point(cex = 4, aes(pch = Area)) + 
-  xlab(({delta}^13*C~'\u2030')) + 
-  ylab("Depth (m)") +
+  ggplot(aes(x = Depth,
+             y = Rim_C)) +
+  geom_point(cex = 4) + 
+  ylab(({delta}^13*C~'\u2030')) + 
+  xlab("Depth (m)") +
   theme(text = element_text(size=23)) + 
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm", color = 1, se = F) + 
+  geom_vline(xintercept = 0, linetype = 1) +
+  geom_vline(xintercept = 35, linetype = 1) +
+  geom_vline(xintercept = 45, linetype = 3) +
+  geom_vline(xintercept = 95, linetype = 3)
 
 ## Summary regressions ------
 
@@ -173,9 +221,11 @@ summary(lm(cat$dif_C ~ cat$Wt.g.))
 ## Sites Map ------ 
 
 lat_mat = data.frame(lat = oto$lat, 
-           long = oto$long, depth = oto$Depth) %>%
+           long = oto$long, depth = oto$Depth, group = oto$Group) %>%
   unique()
 
+#install.packages("rworldmap")
+library(rworldmap)
 # Creating map 
 data("countryExData", envir=environment(), package="rworldmap")
 
@@ -217,7 +267,7 @@ ggplot() +
 
 ggplot() + 
   coord_map(xlim = c(-84, -80), 
-            ylim = c(25, 26.8)) +
+            ylim = c(24, 26.8)) +
   geom_polygon(data = mymap,
                aes(long, lat, group = group), 
                color = "grey20",
@@ -229,11 +279,15 @@ ggplot() +
   geom_point(data=lat_mat, 
              aes(x=long,
                  y=lat,
-                 col = -depth),
+                 col = -depth, 
+                 shape = group),
              size=5) + 
-  xlab("Longitude") +
-  ylab("Latitude") + 
-  labs(color= "Depth")
+  xlab("") +
+  ylab("") + 
+  labs(color= "Depth", 
+       shape = "Depth Step") +
+  scale_shape_discrete(labels = c("Shallow: 0-35m", "Deep: 45 - 93m")) + theme(axis.text = element_text(size = 18))
+
 
 
 +
@@ -261,7 +315,7 @@ ggplot() +
 ## Zoom in to Keys sites 
 ggplot() + 
   coord_map(xlim = c(-82, -80.2), 
-            ylim = c(24.5, 25.3)) +
+            ylim = c(24, 25.3)) +
   geom_polygon(data = mymap,
                aes(long, lat, group = group), 
                color = "grey20",
@@ -273,7 +327,8 @@ ggplot() +
   geom_point(data=lat_mat, 
              aes(x=long,
                  y=lat,
-                 col =-depth),
+                 col =-depth, 
+                 shape = group),
              size=5) + 
   xlab("Longitude") +
   ylab("Latitude") +
@@ -296,10 +351,12 @@ ggplot() +
   theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank(),
         axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) + 
   coord_fixed(1.3) + 
-  geom_point(aes(x = lat_mat$long, y =lat_mat$lat, color = -lat_mat$depth)) + 
+  geom_point(aes(x = lat_mat$long, y =lat_mat$lat, color = -lat_mat$depth, 
+                 shape = lat_mat$group)) + 
   theme(legend.position = "none") 
   
 
+lat_mat
 
 
 
@@ -316,6 +373,9 @@ oto$Individual %>% unique() %>% length()
 
 data = read.csv("../Data/sankey_dataframe_new.csv", header=T)
 
+data = read.csv("Data/sankey_dataframe_new.csv", header=T)
+
+data = read.csv("Data/sankey_dataframe_102322.csv", header = T)
 
 
 nodes = data.frame(
@@ -337,6 +397,9 @@ nodes = data.frame(name = rep(c("W:<45m",
                                 "K:<10m",
                                 "K:>10m"),2))
 
+nodes = data.frame(name = rep(c("< 45m",
+                                "> 45m"),2))
+
 
 
 
@@ -354,8 +417,20 @@ p <- sankeyNetwork(Links = data,
                    fontSize=30,
                    nodePadding = 20)
 
-
+pdf("sankey_newboogy.pdf", height = 11, width = 11, onefile = T)
+p <- sankeyNetwork(Links = data,
+                   Nodes = nodes,
+                   Source = "IDsource",
+                   Target = "IDtarget",
+                   Value = "val",
+                   NodeID = "name", 
+                   colourScale=ColourScal,
+                   sinksRight=FALSE,
+                   nodeWidth=40,
+                   fontSize=30,
+                   nodePadding = 20)
 p
+dev.off()
 
 
 #### playing around with something that I shouldn't because this is supposed to be clean -----------------------

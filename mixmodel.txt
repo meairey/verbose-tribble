@@ -14,20 +14,6 @@ for(n in 1:V){
 mu.2[i,n] <- lambda[T2[i],n]
 }
 } 
-for( i in 1 : N.mix3)  {
-T3[i] ~ dcat(P3[])
-y.mix3[i,1:V] ~ dmnorm(mu.3[i,1:V], tau[,])
-for(n in 1:V){
-mu.3[i,n] <- lambda[T3[i],n]
-}
-} 
-for( i in 1 : N.mix4)  {
-T4[i] ~ dcat(P4[])
-y.mix4[i,1:V] ~ dmnorm(mu.4[i,1:V], tau[,])
-for(n in 1:V){
-mu.4[i,n] <- lambda[T4[i],n]
-}
-} 
 for( j in 1 : Ntrain.oto) {
 y.base[j,1:V] ~ dmnorm(mu[j,1:V], tau[1:V,1:V])
 for(n in 1:V){
@@ -36,8 +22,6 @@ mu[j,n] <- lambda[Train.oto[j],n]
 } 
 P1[1:G] ~ ddirch(alpha[]) 
 P2[1:G] ~ ddirch(alpha[]) 
-P3[1:G] ~ ddirch(alpha[]) 
-P4[1:G] ~ ddirch(alpha[]) 
 tau[1:V,1:V] ~ dwish(R[,],V)
 sigma[1:V,1:V]<-inverse(tau[ , ])
 for(k in 1:G){
@@ -53,9 +37,5 @@ yrepmean1[i]<-mean(yrep[1:NTrain[1],i])
 otopredcheck1[i]<-step(yrepmean1[i]-y.mean1[i]) 
 yrepmean2[i]<-mean(yrep[(1+NTrain[1]):(NTrain[1]+NTrain[2]),i])
 otopredcheck2[i]<-step(yrepmean2[i]-y.mean2[i]) 
-yrepmean3[i]<-mean(yrep[(1+NTrain[1]+NTrain[2]):(NTrain[1]+NTrain[2]+NTrain[3]),i])
-otopredcheck3[i]<-step(yrepmean3[i]-y.mean3[i]) 
-yrepmean4[i]<-mean(yrep[(1+NTrain[1]+NTrain[2]+NTrain[3]):(NTrain[1]+NTrain[2]+NTrain[3]+NTrain[4]),i])
-otopredcheck4[i]<-step(yrepmean4[i]-y.mean4[i]) 
 } 
 } 

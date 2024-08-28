@@ -402,14 +402,12 @@ write.csv(results, "mixfish_results_2.csv")
 
 ## Final filtered model ---------------------
 ## Trying with the filtered data 
+
+## Seems to work well with the .975 confidence interval 
 `%nin%` = Negate(`%in%`) # sets up a way to exclude if in a string
 data = pca_dat %>%
-  filter(Sample_ID %nin% list.975.samp) %>%
-  group_by(individal, Group, age) %>%
-  #summarise(O = mean(O),
-          # C = mean(C)) %>%
-  ungroup() %>%
-  select(Group,age, O, C, individal) %>%
+  filter(Sample_ID %nin% list.99.samp) %>%
+  
   rename("CARBON" = C) %>%
   rename("OXYGEN" = O) %>%
   rename("SEASON" = age) %>%
@@ -418,30 +416,31 @@ data = pca_dat %>%
   mutate(STOCK = as.factor(STOCK)) %>% ## Has to be a factor to work 
   as.data.frame() 
 
+data = data[-which((pca_dat$age == "Core") & (pca_dat$individal %in% list.99)),]
 
-lionmix = mixy(data = data, 
+lionmixy = mixy(data = data, 
                  method = "otolith",
                  groups = "STOCK",
                  base = data[data$SEASON == "Rim",],
                  mix = data[data$SEASON == "Core",],
                  type = "random",
-                 mixparameters = c("P1", "P2", "P3", "P4"),
-                 mixtows = c("K_A","W_A","W_B","W_C" ),
-                 basetows = c("K_A","W_A","W_B","W_C"),
+                 mixparameters = c("P1", "P2"),
+                 mixtows = c("K_A","W_B" ),
+                 basetows = c("K_A","W_B"),
                  otolith.var = c("CARBON","OXYGEN"),
                  n.chains = 5,
                  n.iter = 50000)
-lionmix
+lionmixy
 
 
-testing = lionmix[["sims.matrix"]]
+testing = lionmixy[["sims.matrix"]]
 testing_1 = testing[,12]
 quantile(testing_1, probs = c(.05,.95, .976))
 
 
 mean = testing %>%
   as.data.frame() %>%
-  summarise_all(mean)
+  summarise_all(.,funs(mean))
 q_5 = testing %>%
   as.data.frame() %>%
   summarise_all(.,funs(quantile(., probs = .05)*100))
@@ -450,10 +449,13 @@ q_95 = testing %>%
   summarise_all(.,funs(quantile(., probs = .95)*100))
 summary = rbind(mean, q_5, q_95)
 results = format(round(summary,7)) 
+results
 write.csv(results, "mixfish_results_2.csv")
 
 
-## Trying to make a dendrogram 
+
+
+## Trying to make a dendrogram ----------------------
 cluster_data = data %>% 
   unite("id", c(individal, SEASON, STOCK)) %>%
   column_to_rownames(.,var = "id") %>%
