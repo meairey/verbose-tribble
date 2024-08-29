@@ -1,3 +1,5 @@
+![lionfish image](https://github.com/meairey/verbose-tribble/blob/main/Figures_Code/lionfish.jpg?real=true)
+
 # Settlement and Dispersal of Invasive Lionfish 
 
 ---
@@ -5,8 +7,6 @@
 Welcome to my repository containing the scrips from my M.A. thesis at Columbia Univeristy. Topics covered are settlement and dispersal of lionfish in Floridian Coastal Water. 
 
 
-<br>
-<br>
 <br>
 
 #### Dependancies
