@@ -354,25 +354,31 @@ plot(lionmix_m)
 ## Modified Model -----------------------------
 # Multiple WFS and Keys - USE ME
 
+## You need to have this in the main folder i was having an issue with the directory. FIle needs to be in directory folder bc thats where it writes innits
+
 data = read.csv("Data/lionmix_modified.csv")
 data = data %>% 
-  filter(STOCK_2 != "KD") %>%
+  #filter(STOCK_2 != "KD") %>%
   select(-c(STOCK_1,STOCK, Final)) %>%
+  mutate(STOCK_2 = as.factor(STOCK_2)) %>%
   na.omit()
-
-lionmix_m = mixy(data = data, 
+### click to here --------------------------
+lionmix_mo = mixy(data = data, 
                  method = "otolith",
                  groups = "STOCK_2",
                  base = data[data$SEASON == "R",],
                  mix = data[data$SEASON == "C",],
                  type = "random",
-                 mixparameters = c("P1", "P2","P3","P4"),
-                 mixtows = c("A","B","C","K"),
-                 basetows = c("A","B","C","K", "KD"),
+                 #mixparameters = c("P1", "P2","P3","P4"),
+                 mixparameters = c("P1","P2"),
+                 #mixtows = c("A","B","C","K"),
+                 mixtows = c("B","K"),
+                 #basetows = c("A","B","C","K"),
+                 basetows = c("B","K", "KD"),
                  otolith.var = c("CARBON","OXYGEN"),
                  n.chains = 5,
                  n.iter = 5000)
-lionmix_m
+lionmix_mo
 
 testing = lionmix_m[["sims.matrix"]]
 testing_1 = testing[,12]
@@ -392,47 +398,73 @@ summary = rbind(mean, q_5, q_95)
 results = format(round(summary,7))
 write.csv(results, "mixfish_results_2.csv")
 
-## Modified Model 
-# Just Keys
-data = read.csv("Data/lionmix_modified.csv")
-data = data %>% 
-  #filter(STOCK_1 == "K") %>%
-  select(-c(STOCK_1, Final)) %>%
-  na.omit()
 
-lionmix_m = mixy(data = data, 
+
+## Final filtered model ---------------------
+## Trying with the filtered data 
+
+## Seems to work well with the .975 confidence interval 
+`%nin%` = Negate(`%in%`) # sets up a way to exclude if in a string
+data = pca_dat %>%
+  filter(Sample_ID %nin% list.99.samp) %>%
+  
+  rename("CARBON" = C) %>%
+  rename("OXYGEN" = O) %>%
+  rename("SEASON" = age) %>%
+  rename("STOCK" = Group) %>%
+ # mutate(STOCK = replace(STOCK, STOCK == "W_B", "B_W  )) %>% 
+  mutate(STOCK = as.factor(STOCK)) %>% ## Has to be a factor to work 
+  as.data.frame() 
+
+data = data[-which((pca_dat$age == "Core") & (pca_dat$individal %in% list.99)),]
+
+lionmixy = mixy(data = data, 
                  method = "otolith",
                  groups = "STOCK",
-                 base = data[data$SEASON == "R",],
-                 mix = data[data$SEASON == "C",],
+                 base = data[data$SEASON == "Rim",],
+                 mix = data[data$SEASON == "Core",],
                  type = "random",
                  mixparameters = c("P1", "P2"),
-                 mixtows = c("K", "KD"),
-                 basetows = c("K","KD"),
+                 mixtows = c("K_A","W_B" ),
+                 basetows = c("K_A","W_B"),
                  otolith.var = c("CARBON","OXYGEN"),
-                 n.chains = 3,
-                 n.iter = 10000)
-lionmix_m
+                 n.chains = 5,
+                 n.iter = 50000)
+lionmixy
+
+
+testing = lionmixy[["sims.matrix"]]
+testing_1 = testing[,12]
+quantile(testing_1, probs = c(.05,.95, .976))
+
+
+mean = testing %>%
+  as.data.frame() %>%
+  summarise_all(.,funs(mean))
+q_5 = testing %>%
+  as.data.frame() %>%
+  summarise_all(.,funs(quantile(., probs = .05)*100))
+q_95 = testing %>%
+  as.data.frame() %>%
+  summarise_all(.,funs(quantile(., probs = .95)*100))
+summary = rbind(mean, q_5, q_95)
+results = format(round(summary,7)) 
+results
+write.csv(results, "mixfish_results_2.csv")
 
 
 
-## Trying one more time for some reason the above thing is broken?
-data = read.csv("Data/lionmix_modified.csv")
-data = data %>% 
-  #filter(STOCK_1 == "K") %>%
-  select(-c(STOCK_1, Final)) %>%
-  na.omit()
 
-lionmix_m = mixy(data = data, 
-                 method = "otolith",
-                 groups = "STOCK",
-                 base = data[data$SEASON == "R",],
-                 mix = data[data$SEASON == "C",],
-                 type = "random",
-                 mixparameters = c("P1", "P2", "P3"),
-                 mixtows = c("K", "KD"),
-                 basetows = c("K","KD"),
-                 otolith.var = c("CARBON","OXYGEN"),
-                 n.chains = 3,
-                 n.iter = 10000)
-lionmix_m
+## Trying to make a dendrogram ----------------------
+cluster_data = data %>% 
+  unite("id", c(individal, SEASON, STOCK)) %>%
+  column_to_rownames(.,var = "id") %>%
+  select(OXYGEN, CARBON) %>% 
+  mutate(OXYGEN = scale(OXYGEN)) %>%
+  mutate(CARBON = scale(CARBON)) %>%
+  dist(., method = "euclidean") 
+
+
+
+hclust_avg <- hclust(cluster_data, method = 'average')
+plot(hclust_avg)
